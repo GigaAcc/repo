@@ -1,62 +1,60 @@
-// Początkowe dane serwera
-let serverData = {
-    serverName: "Nazwa Serwera",
-    serverLink: "http://www.example.com",
-    countdown: 180, // Czas w sekundach (3 godziny)
-};
+document.addEventListener('DOMContentLoaded', function () {
+    const parkingList = document.getElementById('parkingList');
+    const reservationsList = document.getElementById('reservationsList');
 
-// Funkcja dodająca dane ręcznie
-function manualAdd() {
-    // Tutaj możesz dodać kod do zbierania danych z formularza i zaktualizować serverData
-    // Na potrzeby przykładu użyję stałych danych
-    serverData = {
-        serverName: "Nowa Nazwa Serwera",
-        serverLink: "http://www.newexample.com",
-        countdown: 120, // Czas w sekundach (2 minuty)
-    };
+    // Lista miejsc parkingowych
+    const parkingSpots = [
+        { id: 1, status: 'wolny' },
+        { id: 2, status: 'wolny' },
+        { id: 3, status: 'wolny' },
+        { id: 4, status: 'wolny' }
+    ];
 
-    updateServerInfo();
-}
+    // Dodawanie miejsc parkingowych do strony
+    parkingSpots.forEach(spot => {
+        const li = document.createElement('li');
+        li.innerHTML = `Miejsce ${spot.id} - Status: <span class="${spot.status}">${spot.status.charAt(0).toUpperCase() + spot.status.slice(1)}</span>`;
+        
+        if (spot.status === 'wolny') {
+            const reserveLink = document.createElement('a');
+            reserveLink.href = '#';
+            reserveLink.textContent = 'Zarezerwuj';
+            reserveLink.addEventListener('click', function () {
+                reserveSpot(spot.id);
+            });
+            li.appendChild(reserveLink);
+        }
 
-// Funkcja aktualizująca informacje o serwerze
-function updateServerInfo() {
-    const serverInfoDiv = document.getElementById('server-info');
-    serverInfoDiv.innerHTML = `
-        <h3>${serverData.serverName}</h3>
-        <p><a href="${serverData.serverLink}" target="_blank">${serverData.serverLink}</a></p>
-        <p>Odliczanie czasu: <span id="countdown">${formatTime(serverData.countdown)}</span></p>
-    `;
+        parkingList.appendChild(li);
+    });
 
-    // Uruchamiamy odliczanie
-    setInterval(updateCountdown, 1000);
-}
-
-// Funkcja aktualizująca odliczanie
-function updateCountdown() {
-    const countdownSpan = document.getElementById('countdown');
-    serverData.countdown--;
-
-    if (serverData.countdown < 0) {
-        // Jeśli odliczanie dojdzie do zera, zaczynamy ponownie od 3 godzin
-        serverData.countdown = 3 * 60 * 60;
+    // Rezerwacja miejsca parkingowego
+    function reserveSpot(spotId) {
+        const spot = parkingSpots.find(s => s.id === spotId);
+        if (spot && spot.status === 'wolny') {
+            spot.status = 'zarezerwowane';
+            updateParkingList();
+        }
     }
 
-    countdownSpan.textContent = formatTime(serverData.countdown);
-}
+    // Aktualizacja listy miejsc parkingowych
+    function updateParkingList() {
+        parkingList.innerHTML = ''; // Wyczyszczenie listy
+        parkingSpots.forEach(spot => {
+            const li = document.createElement('li');
+            li.innerHTML = `Miejsce ${spot.id} - Status: <span class="${spot.status}">${spot.status.charAt(0).toUpperCase() + spot.status.slice(1)}</span>`;
+            
+            if (spot.status === 'wolny') {
+                const reserveLink = document.createElement('a');
+                reserveLink.href = '#';
+                reserveLink.textContent = 'Zarezerwuj';
+                reserveLink.addEventListener('click', function () {
+                    reserveSpot(spot.id);
+                });
+                li.appendChild(reserveLink);
+            }
 
-// Funkcja formatująca czas w formacie HH:MM:SS
-function formatTime(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-
-    return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
-}
-
-// Funkcja dodająca zero przed liczbami jednocyfrowymi
-function pad(number) {
-    return (number < 10 ? '0' : '') + number;
-}
-
-// Inicjalizacja strony
-updateServerInfo();
+            parkingList.appendChild(li);
+        });
+    }
+});
